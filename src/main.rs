@@ -1,9 +1,12 @@
 extern crate clap;
+extern crate either;
 
 use std::process::exit;
 use clap::{Arg, App, SubCommand};
+use either::Either::{Left, Right};
 
 mod day1;
+mod day2;
 
 fn main() {
     let matches = App::new("Advent of Rust")
@@ -17,6 +20,19 @@ fn main() {
                 .help("Sets the input file to use")
                 .required(true)
                 .index(1)))
+        .subcommand(SubCommand::with_name("day2")
+            .arg(Arg::with_name("INPUT")
+                .help("Sets the input file to use")
+                .index(1)
+                .required(true)
+                .conflicts_with("input-string"))
+            .arg(Arg::with_name("input-string")
+                .help("Input from command-line")
+                .long("input-string")
+                .short("i")
+                .required(true)
+                .takes_value(true)
+                .conflicts_with("INPUT")))
         .get_matches();
 
     let result = match matches.subcommand_name() {
@@ -24,6 +40,15 @@ fn main() {
             let sub = matches.subcommand_matches("day1").unwrap();
             let file = sub.value_of("INPUT").unwrap();
             day1::main(file, sub.is_present("part2"))
+        }
+        Some("day2") => {
+            let sub = matches.subcommand_matches("day2").unwrap();
+            let input = match (sub.value_of("INPUT"), sub.value_of("input-string")) {
+                (Some(f), _) => Left(f),
+                (_, Some(i)) => Right(i),
+                _ => unreachable!()
+            };
+            day2::main(input)
         }
         None => {
             println!("{}", matches.usage());

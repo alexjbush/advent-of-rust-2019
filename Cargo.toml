@@ -5,3 +5,4 @@ authors = ["Alex Bush <bushnoh@gmail.com>"]
 
 [dependencies]
 clap = "2.33.0"
+either = "1.5.3"
