@@ -2,6 +2,7 @@ extern crate clap;
 
 use std::process::exit;
 use clap::{Arg, App, SubCommand};
+
 mod day1;
 
 fn main() {
@@ -9,6 +10,9 @@ fn main() {
         .version("0.1")
         .author("Alex Bush <bushnoh@gmail.com>")
         .subcommand(SubCommand::with_name("day1")
+            .arg(Arg::with_name("part2")
+                .help("Enable output for part 2")
+                .long("part2"))
             .arg(Arg::with_name("INPUT")
                 .help("Sets the input file to use")
                 .required(true)
@@ -17,13 +21,14 @@ fn main() {
 
     let result = match matches.subcommand_name() {
         Some("day1") => {
-            let file = matches.subcommand_matches("day1").unwrap().value_of("INPUT").unwrap();
-            day1::main(file)
-        },
+            let sub = matches.subcommand_matches("day1").unwrap();
+            let file = sub.value_of("INPUT").unwrap();
+            day1::main(file, sub.is_present("part2"))
+        }
         None => {
             println!("{}", matches.usage());
             Ok(())
-        },
+        }
         _ => Err(format!("{}", "Unknown subcommand")),
     };
 
