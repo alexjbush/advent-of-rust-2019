@@ -2,8 +2,8 @@ extern crate clap;
 
 use std::process::exit;
 use clap::{Arg, App, SubCommand};
-use std::error::Error;
-use advent-of-rust;
+mod day1;
+
 fn main() {
     let matches = App::new("Advent of Rust")
         .version("0.1")
@@ -17,17 +17,20 @@ fn main() {
 
     let result = match matches.subcommand_name() {
         Some("day1") => {
-            let file = matches.subcommand_matches("day1").unwrap().value_of("INPUT");
-            day1(file)
+            let file = matches.subcommand_matches("day1").unwrap().value_of("INPUT").unwrap();
+            day1::main(file)
         },
-        None => Err(std::io::Error::new(std::io::ErrorKind::Other, "No subcommand given")),
-        _ => Err(std::io::Error::new(std::io::ErrorKind::Other, "Unknown subcommand")),
+        None => {
+            println!("{}", matches.usage());
+            Ok(())
+        },
+        _ => Err(format!("{}", "Unknown subcommand")),
     };
 
     match result {
         Ok(_) => exit(0),
         Err(e) => {
-            eprint!("{}", e.description());
+            eprintln!("ERROR: {}", e);
             exit(-1)
         }
     }
