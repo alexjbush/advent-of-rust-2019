@@ -21,6 +21,12 @@ fn main() {
                 .required(true)
                 .index(1)))
         .subcommand(SubCommand::with_name("day2")
+            .arg(Arg::with_name("replace")
+                .help("Initial replacements")
+                .takes_value(true)
+                .short("r")
+                .long("replace")
+                .multiple(true))
             .arg(Arg::with_name("INPUT")
                 .help("Sets the input file to use")
                 .index(1)
@@ -43,12 +49,20 @@ fn main() {
         }
         Some("day2") => {
             let sub = matches.subcommand_matches("day2").unwrap();
+            let replacements = sub.values_of("replace").map(|x| x.into_iter().collect::<Vec<&str>>()).unwrap_or(Vec::new());
+            let replacements: Vec<Vec<usize>> = replacements.into_iter().map(|s| s.split(",").map(|i| i.parse::<usize>().unwrap()).collect()).collect();
+            let replacements = replacements.into_iter().map(
+                |x| match (x.get(0), x.get(1), x.get(2)) {
+                    (Some(k), Some(v), None) => (k.clone(), v.clone()),
+                        _ => panic!("Replacement invalid")
+                }
+            ).collect::<Vec<(usize, usize)>>();
             let input = match (sub.value_of("INPUT"), sub.value_of("input-string")) {
                 (Some(f), _) => Left(f),
                 (_, Some(i)) => Right(i),
                 _ => unreachable!()
             };
-            day2::main(input)
+            day2::main(input, replacements)
         }
         None => {
             println!("{}", matches.usage());
