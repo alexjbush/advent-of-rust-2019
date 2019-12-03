@@ -1,7 +1,7 @@
 use either::Either::{self, Left, Right};
 use std::fs;
 
-pub fn main(input: Either<&str, &str>, replacements: Vec<(usize, usize)>) -> std::result::Result<(), String> {
+pub fn main(input: Either<&str, &str>, replacements: Vec<(usize, usize)>, part2: bool) -> std::result::Result<(), String> {
     let program = match input {
         Left(f) => fs::read_to_string(f).map_err(|e| e.to_string())?,
         Right(i) => i.to_string(),
@@ -9,16 +9,36 @@ pub fn main(input: Either<&str, &str>, replacements: Vec<(usize, usize)>) -> std
 
     let mut program = program_string_to_vect(program)?;
 
+    if !part2 {
+        run(&mut program, replacements)?;
+        let output: String = program.into_iter().map(|i| i.to_string()).collect::<Vec<String>>().join(",");
+        println!("{}", output);
+        Ok(())
+    } else {
+        for a in 0usize..=99 {
+            for b in 0usize..=99 {
+                let mut input = program.clone();
+                let res = run(&mut input, vec![(1, a), (2, b)]);
+                if res.is_ok() && input.get(0).map(|v| v.clone() == 19690720usize).unwrap_or(false) {
+                    println!("{}", 100 * a + b);
+                    return Ok(())
+                }
+            }
+        }
+        Err("Did not finish".to_string())
+    }
+}
+
+pub fn run(program: &mut Vec<usize>, replacements: Vec<(usize, usize)>) -> std::result::Result<(), String> {
+
+    let mut program = program;
+
     replacements.into_iter().for_each(|(a, b)| {
         let v = program.get_mut(a).unwrap();
         *v = b
     });
 
     run_program(&mut program, 0)?;
-
-    let output: String = program.into_iter().map(|i| i.to_string()).collect::<Vec<String>>().join(",");
-
-    println!("{}", output);
 
     Ok(())
 }

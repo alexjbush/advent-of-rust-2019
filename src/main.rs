@@ -27,6 +27,9 @@ fn main() {
                 .short("r")
                 .long("replace")
                 .multiple(true))
+            .arg(Arg::with_name("part2")
+                .help("Enable output for part 2")
+                .long("part2"))
             .arg(Arg::with_name("INPUT")
                 .help("Sets the input file to use")
                 .index(1)
@@ -62,7 +65,7 @@ fn main() {
                 (_, Some(i)) => Right(i),
                 _ => unreachable!()
             };
-            day2::main(input, replacements)
+            day2::main(input, replacements, sub.is_present("part2"))
         }
         None => {
             println!("{}", matches.usage());
